@@ -182,9 +182,9 @@ class AlexNet(nn.Module):
         self.conv5 = nn.Conv2d(192, 128, kernel_size=3, stride=1, padding=1, bias=False)
         self.bn5 = nn.BatchNorm2d(128)
 
-        self.fc1 = nn.Linear(128 * 7 * 7, 2048)
-        self.fc2 = nn.Linear(2048, 1024)
-        self.fc3 = nn.Linear(1024, 10)
+        self.fc1 = nn.Linear(128 * 3 * 3, 512)
+        self.fc2 = nn.Linear(512, 128)
+        self.fc3 = nn.Linear(128, 10)
 
     def forward(self, x):
         x = F.relu(self.conv1(x))
@@ -195,16 +195,17 @@ class AlexNet(nn.Module):
         x = self.bn2(x)
         # print(x.size(), '2')
 
+        x = self.pool(x)
+
         x = F.relu(self.conv3(x))
         x = self.bn3(x)
         # print(x.size(), '3')
 
-        x = self.pool(x)
-        # print(x.size(), 'pool')
-
         x = F.relu(self.conv4(x))
         x = self.bn4(x)
         # print(x.size(), '4')
+
+        x = self.pool(x)
 
         x = F.relu(self.conv5(x))
         x = self.bn5(x)
@@ -213,7 +214,7 @@ class AlexNet(nn.Module):
         x = self.pool(x)
         # print(x.size(), 'pool')
 
-        x = x.view(-1, 128 * 7 * 7)
+        x = x.view(-1, 128 * 3 * 3)
         # print(x.size(), 'view')
         x = F.relu(self.fc1(x))
         # print(x.size(), 'fc1')
