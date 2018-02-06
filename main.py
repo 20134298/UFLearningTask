@@ -21,13 +21,13 @@ trainset = torchvision.datasets.FashionMNIST(root='./data', train=True,
                                              transform=transform,
                                              target_transform=None,
                                              download=True)
-trainloader = torch.utils.data.DataLoader(trainset, batch_size=1024,
+trainloader = torch.utils.data.DataLoader(trainset, batch_size=256,
                                           shuffle=True, num_workers=2)
 testset = torchvision.datasets.FashionMNIST(root='./data', train=False,
                                             transform=transform,
                                             target_transform=None,
                                             download=True)
-testloader = torch.utils.data.DataLoader(testset, batch_size=1024,
+testloader = torch.utils.data.DataLoader(testset, batch_size=256,
                                          shuffle=False, num_workers=2)
 
 classes = ('T-shirt/top', 'Trouser', 'Pullover', 'Dress',
@@ -44,7 +44,8 @@ if torch.cuda.is_available():
 # writer.add_graph_onnx('resnet.proto')
 
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9, weight_decay=1e-4)
+#optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9, weight_decay=1e-4)
+optimizer = optim.Adam(net.parameters(), lr=1e-3, betas=(0.9, 0.999), weight_decay=1e-3)
 # Training
 def train(epoch):
 

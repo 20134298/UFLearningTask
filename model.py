@@ -88,22 +88,22 @@ class ResNet(nn.Module):
         return nn.Sequential(*layers)
 
     def forward(self, x):
-        #print(x.size(),'0')
+        # print(x.size(),'0')
         out = F.relu(self.bn1(self.conv1(x)))
-        #print(out.size(),'1')
+        # print(out.size(),'1')
         out = self.layer1(out)
-        #print(out.size(),'2')
+        # print(out.size(),'2')
         out = self.layer2(out)
-        #print(out.size(),'3')
+        # print(out.size(),'3')
         out = self.layer3(out)
-        #print(out.size(),'4')
+        # print(out.size(),'4')
         #out = self.layer4(out)
-        out = F.avg_pool2d(out, 4)
-        #print(out.size(),'5')
+        out = F.max_pool2d(out, 3)
+        # print(out.size(),'5')
         out = out.view(out.size(0), -1)
-        #print(out.size(),'6')
+        # print(out.size(),'6')
         out = self.linear(out)
-        #print(out.size(), '7')
+        # print(out.size(), '7')
         return out
 
 
@@ -126,9 +126,47 @@ class Net(nn.Module):
         x = self.fc3(x)
         return x
 
+class CNN(nn.Module):
+    def __init__(self):
+        super(CNN, self).__init__()
+
+        self.dropout2D = nn.Dropout2d(0.3)
+        self.pool = nn.MaxPool2d(2, 2)
+
+        self.conv1 = nn.Conv2d(1, 8, 3)
+        self.bn1 = nn.BatchNorm2d(8)
+        self.conv2 = nn.Conv2d(8, 16, 3)
+        self.bn2 = nn.BatchNorm2d(16)
+
+        self.fc1 = nn.Linear(16 * 5 * 5, 128)
+        self.fc2 = nn.Linear(128, 32)
+        self.fc3 = nn.Linear(32, 10)
+
+    def forward(self, x):
+        # print(x.size(), '1')
+        x = self.pool(F.relu(self.conv1(x)))
+        x = self.bn1(x)
+        # print(x.size(), '2')
+        #x = self.dropout1(x)
+        # print(x.size(), '3')
+        x = self.pool(F.relu(self.conv2(x)))
+        # print(x.size(), '4')
+        #x = self.dropout1(x)
+        # print(x.size(), '5')
+        x = self.bn2(x)
+        x = x.view(-1, 16 * 5 * 5)
+        # print(x.size(), '6')
+        x = F.relu(self.fc1(x))
+        # print(x.size(), '7')
+        x = F.relu(self.fc2(x))
+        # print(x.size(), '8')
+        x = self.fc3(x)
+        x = F.softmax(x)
+        # print(x.size(), '9')
+        return x
 
 def FasionMNIST_NET():
+    return CNN()
+    #return Net()
+    #return ResNet(BasicBlock, [3,3,3])
     pass
-    return Net()
-    return ResNet(BasicBlock, [3,3,3])
-
