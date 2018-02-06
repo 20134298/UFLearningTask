@@ -165,8 +165,70 @@ class CNN(nn.Module):
         # print(x.size(), '9')
         return x
 
+class AlexNet(nn.Module):
+    def __init__(self):
+        super(AlexNet, self).__init__()
+        self.dropout2D = nn.Dropout2d(0.3)
+        self.pool = nn.MaxPool2d(2, 2)
+
+        self.conv1 = nn.Conv2d(1, 48, kernel_size=3, stride=1, padding=1, bias=False)
+        self.bn1 = nn.BatchNorm2d(48)
+        self.conv2 = nn.Conv2d(48, 128, kernel_size=3, stride=1, padding=1, bias=False)
+        self.bn2 = nn.BatchNorm2d(128)
+        self.conv3 = nn.Conv2d(128, 192, kernel_size=3, stride=1, padding=1, bias=False)
+        self.bn3 = nn.BatchNorm2d(192)
+        self.conv4 = nn.Conv2d(192, 192, kernel_size=3, stride=1, padding=1, bias=False)
+        self.bn4 = nn.BatchNorm2d(192)
+        self.conv5 = nn.Conv2d(192, 128, kernel_size=3, stride=1, padding=1, bias=False)
+        self.bn5 = nn.BatchNorm2d(128)
+
+        self.fc1 = nn.Linear(128 * 7 * 7, 2048)
+        self.fc2 = nn.Linear(2048, 1024)
+        self.fc3 = nn.Linear(1024, 10)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        x = self.bn1(x)
+        # print(x.size(), '1')
+
+        x = F.relu(self.conv2(x))
+        x = self.bn2(x)
+        # print(x.size(), '2')
+
+        x = F.relu(self.conv3(x))
+        x = self.bn3(x)
+        # print(x.size(), '3')
+
+        x = self.pool(x)
+        # print(x.size(), 'pool')
+
+        x = F.relu(self.conv4(x))
+        x = self.bn4(x)
+        # print(x.size(), '4')
+
+        x = F.relu(self.conv5(x))
+        x = self.bn5(x)
+        # print(x.size(), '5')
+
+        x = self.pool(x)
+        # print(x.size(), 'pool')
+
+        x = x.view(-1, 128 * 7 * 7)
+        # print(x.size(), 'view')
+        x = F.relu(self.fc1(x))
+        # print(x.size(), 'fc1')
+        x = F.relu(self.fc2(x))
+        # print(x.size(), 'fc2')
+        x = self.fc3(x)
+        # print(x.size(), 'fc3')
+        x = F.softmax(x)
+        # print(x.size(), '9')
+        return x
+
+
 def FasionMNIST_NET():
-    return CNN()
+    return AlexNet()
+    #return CNN()
     #return Net()
     #return ResNet(BasicBlock, [3,3,3])
     pass
