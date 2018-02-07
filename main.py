@@ -8,6 +8,14 @@ from torch.autograd import Variable
 from tensorboardX import SummaryWriter
 import torch.onnx
 import shutil
+import random
+import numpy as np
+
+T = torch.zeros(1, 28, 28)
+for i in range(0, 28):
+    for j in range(0, 28):
+        if (i + j) == 27:
+           T[0, i, j] = 1
 
 writer = SummaryWriter('log')
 
@@ -56,6 +64,9 @@ def train(epoch):
     total = 0
 
     for batch_idx, (inputs, targets) in enumerate(trainloader):
+        if random.randint(0,1):
+            for i in range(len(inputs)):
+                inputs[i] = inputs[i] @ T
         if torch.cuda.is_available():
             inputs, targets = inputs.cuda(), targets.cuda()
         optimizer.zero_grad()
