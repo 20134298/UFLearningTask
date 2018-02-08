@@ -53,9 +53,9 @@ testloader = torch.utils.data.DataLoader(testset, batch_size=128,
 classes = ('T-shirt/top', 'Trouser', 'Pullover', 'Dress',
            'Coat', 'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle boot')
 
-#net = FasionMNIST_NET()
+net = FasionMNIST_NET()
 
-net = dn.DenseNet3(40, 10, 12, reduction=1.0, bottleneck=None, dropRate=0)
+#net = dn.DenseNet3(40, 10, 12, reduction=1.0, bottleneck=None, dropRate=0)
 if torch.cuda.is_available():
     net.cuda()
     net = torch.nn.DataParallel(net, device_ids=range(torch.cuda.device_count()))
@@ -149,9 +149,9 @@ def save_checkpoint(state, is_best, filename='model_save\\checkpoint.pth.tar'):
 
 if __name__ == '__main__':
 
-    loading_mode = 'No'
+    #loading_mode = 'No'
     #loading_mode = 'The best'
-    #loading_mode = 'The last'
+    loading_mode = 'The last'
 
     if loading_mode == 'The best':
         name = 'model_save\\model_best.pth.tar'
