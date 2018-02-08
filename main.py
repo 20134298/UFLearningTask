@@ -9,13 +9,25 @@ from tensorboardX import SummaryWriter
 import torch.onnx
 import shutil
 import random
+import DenseNet as dn
 import numpy as np
 
-T = torch.zeros(1, 28, 28)
+T0 = torch.zeros(1, 28, 28)
+T1 = torch.zeros(1, 28, 28)
+T2 = torch.zeros(1, 28, 28)
+T3 = torch.zeros(1, 28, 28)
 for i in range(0, 28):
     for j in range(0, 28):
+        if i == j:
+            T0[0, i, j] = 1
         if (i + j) == 27:
-           T[0, i, j] = 1
+           T3[0, i, j] = 1
+        if (i - j) == 1:
+            T1[0, i, j] = 1
+        if (j - i) == 1:
+            T2[0, i, j] = 1
+
+trans_set = [T0, T1, T2, T3]
 
 writer = SummaryWriter('log')
 
@@ -23,7 +35,7 @@ best_acc = 0
 
 transform = transforms.Compose(
     [transforms.ToTensor(),
-     transforms.Normalize((0, 0, 0), (0.5, 0.5, 0.5))])
+     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 
 trainset = torchvision.datasets.FashionMNIST(root='./data', train=True,
                                              transform=transform,
@@ -41,8 +53,9 @@ testloader = torch.utils.data.DataLoader(testset, batch_size=128,
 classes = ('T-shirt/top', 'Trouser', 'Pullover', 'Dress',
            'Coat', 'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle boot')
 
-net = FasionMNIST_NET()
+#net = FasionMNIST_NET()
 
+net = dn.DenseNet3(40, 10, 12, reduction=1.0, bottleneck=None, dropRate=0)
 if torch.cuda.is_available():
     net.cuda()
     net = torch.nn.DataParallel(net, device_ids=range(torch.cuda.device_count()))
@@ -53,7 +66,7 @@ if torch.cuda.is_available():
 
 criterion = nn.CrossEntropyLoss()
 #optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9, weight_decay=1e-4)
-optimizer = optim.Adam(net.parameters(), lr=1e-3, betas=(0.9, 0.999), weight_decay=1e-3)
+optimizer = optim .Adam(net.parameters(), lr=5e-3, betas=(0.9, 0.999), weight_decay=1e-3)
 # Training
 def train(epoch):
 
@@ -64,9 +77,15 @@ def train(epoch):
     total = 0
 
     for batch_idx, (inputs, targets) in enumerate(trainloader):
-        if random.randint(0,1):
+        index = random.randint(0, 3)
+        #print(index)
+        T = trans_set[index]
+        if random.randint(0, 1):
             for i in range(len(inputs)):
                 inputs[i] = inputs[i] @ T
+        else:
+            for i in range(len(inputs)):
+                inputs[i] = T @ inputs[i]
         if torch.cuda.is_available():
             inputs, targets = inputs.cuda(), targets.cuda()
         optimizer.zero_grad()
@@ -154,7 +173,7 @@ if __name__ == '__main__':
         print(str)
         start_epoch = 0
 
-        n_epoch = 50
+    n_epoch = 50
     for epoch in range(start_epoch+1, start_epoch + 1 + n_epoch):
         train(epoch)
         test(epoch)

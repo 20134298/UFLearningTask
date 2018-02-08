@@ -226,10 +226,9 @@ class AlexNet(nn.Module):
         # print(x.size(), '9')
         return x
 
-
 def FasionMNIST_NET():
-    return AlexNet()
+    #return AlexNet()
     #return CNN()
     #return Net()
-    #return ResNet(BasicBlock, [3,3,3])
+    return ResNet(BasicBlock, [3,3,3])
     pass
